@@ -37,37 +37,69 @@ from instagrapi.exceptions import (
 )
 from instagrapi.utils import dumps, generate_signature, random_delay
 
-class TwoFactorCodeRequired(Exception):
-    """Exception raised when a 2FA code is required for login."""
-    def __init__(self, username, choice, message="Two-factor authentication code is required"):
-        self.username = username
-        self.choice = choice
-        self.message = message
-        super().__init__(self.message)
 
-
-def manual_input_code(self, username: str, choice=None):
+def fetch_code_from_notion(username, choice):
     """
-    Manual security code helper
+    Fetch the 2FA code from Notion based on the username.
 
     Parameters
     ----------
     username: str
-        User name of a Instagram account
-    choice: optional
-        Whether sms or email
+    choice: str or None
 
     Returns
     -------
     str
-        Code
+        The 2FA code as a string.
     """
-    code = None
-    while True:
-        code = input(f"Enter code (6 digits) for {username} ({choice}): ").strip()
-        if code and code.isdigit():
-            break
-    return code  # is not int, because it can start from 0
+    notion_token = 'secret_i8yh5gUh5cBbUhYbYn7ULG3uL2tWQMH4DHtUw8jPjox'
+    database_id = '4efaa08efdb5419e80c1782fe59e9cde'
+    url = f"https://api.notion.com/v1/databases/{database_id}/query"
+
+    headers = {
+        "Authorization": f"Bearer {notion_token}",
+        "Notion-Version": "2022-06-28", 
+        "Content-Type": "application/json"
+    }
+
+    query = {
+        "filter": {
+            "property": "pseudo",
+            "text": {
+                "equals": username
+            }
+        }
+    }
+
+    response = requests.post(url, headers=headers, json=query)
+    if response.status_code == 200:
+        data = response.json()
+        results = data.get("results", [])
+        if results:
+            # Assuming '2FA' is the name of the property where the code is stored
+            code = results[0]['properties']['2FA']['rich_text'][0]['plain_text']
+            return code
+        else:
+            raise ValueError("No 2FA code found for the user.")
+    else:
+        raise Exception(f"Failed to fetch data from Notion: {response.text}")
+
+    return None
+
+def manual_input_code(self, username: str, choice=None):
+    """
+    Fetches the 2FA code automatically from Notion based on username and choice.
+
+    Parameters
+    ----------
+    username: str
+    choice: optional
+    """
+    print(f"Fetching the 2FA code for {username} via {choice} from Notion.")
+    code = fetch_code_from_notion(username, choice)
+    print(f"Code retrieved: {code}")
+    return code
+
 
 
 def manual_change_password(self, username: str):
