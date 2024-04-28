@@ -78,6 +78,7 @@ def fetch_code_from_notion(username, choice):
             if results and results[0]['properties']['2FA']['rich_text'][0]['plain_text']:
                 code = results[0]['properties']['2FA']['rich_text'][0]['plain_text']
                 if code.isdigit() and len(code) == 6:
+                    print(f"Code found: {code}")
                     return code
             print("Code not yet available, retrying in 30 seconds...")
             time.sleep(30)  # Attendez 30 secondes avant de réessayer
