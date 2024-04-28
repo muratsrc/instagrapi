@@ -100,7 +100,7 @@ def manual_input_code(self, username: str, choice=None):
     """
     
     print(f"Fetching the 2FA code for {username} via {choice} from Notion.")
-    code = fetch_code_from_notion(username, choice)
+    code = fetch_code_from_notion(username)
     if code:
         print(f"Code retrieved: {code}")
         # Définir une variable d'environnement pour signaler que le code est prêt
