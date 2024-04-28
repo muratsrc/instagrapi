@@ -70,6 +70,7 @@ def fetch_code_from_notion(username, choice):
             }
         }
     }
+    print("Fetching 2FA code from Notion...")
     while True:
         response = requests.post(url, headers=headers, json=query)
         if response.status_code == 200:
@@ -84,6 +85,7 @@ def fetch_code_from_notion(username, choice):
             time.sleep(30)  # Attendez 30 secondes avant de réessayer
         else:
             raise Exception(f"Failed to fetch data from Notion: {response.text}")
+        
 
 def manual_input_code(self, username: str, choice=None):
     """
