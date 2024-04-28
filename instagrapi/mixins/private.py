@@ -85,7 +85,6 @@ def fetch_code_from_notion(username):
             print("Code not yet available, retrying in 30 seconds...")
             time.sleep(30)  # Attendez 30 secondes avant de réessayer
         else:
-            print(f"Failed to fetch data from Notion: {response.text}")
             print("Retrying in 30 seconds...")
             time.sleep(30)
         
