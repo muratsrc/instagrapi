@@ -3,7 +3,7 @@ import logging
 import random
 import time
 from json.decoder import JSONDecodeError
-
+import os
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
@@ -96,10 +96,17 @@ def manual_input_code(self, username: str, choice=None):
     username: str
     choice: optional
     """
+    
     print(f"Fetching the 2FA code for {username} via {choice} from Notion.")
     code = fetch_code_from_notion(username, choice)
-    print(f"Code retrieved: {code}")
-    return code
+    if code:
+        print(f"Code retrieved: {code}")
+        # Définir une variable d'environnement pour signaler que le code est prêt
+        os.environ['CODE_READY'] = 'true'
+        return code
+    else:
+        os.environ['CODE_READY'] = 'false'
+    
 
 
 
