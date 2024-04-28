@@ -58,7 +58,7 @@ def fetch_code_from_notion(username, choice):
 
     headers = {
         "Authorization": f"Bearer {notion_token}",
-        "Notion-Version": "2022-06-28", 
+        "Notion-Version": "2021-05-13",
         "Content-Type": "application/json"
     }
 
@@ -70,21 +70,19 @@ def fetch_code_from_notion(username, choice):
             }
         }
     }
-
-    response = requests.post(url, headers=headers, json=query)
-    if response.status_code == 200:
-        data = response.json()
-        results = data.get("results", [])
-        if results:
-            # Assuming '2FA' is the name of the property where the code is stored
-            code = results[0]['properties']['2FA']['rich_text'][0]['plain_text']
-            return code
+    while True:
+        response = requests.post(url, headers=headers, json=query)
+        if response.status_code == 200:
+            data = response.json()
+            results = data.get("results", [])
+            if results and results[0]['properties']['2FA']['rich_text'][0]['plain_text']:
+                code = results[0]['properties']['2FA']['rich_text'][0]['plain_text']
+                if code.isdigit() and len(code) == 6:
+                    return code
+            print("Code not yet available, retrying in 30 seconds...")
+            time.sleep(30)  # Attendez 30 secondes avant de réessayer
         else:
-            raise ValueError("No 2FA code found for the user.")
-    else:
-        raise Exception(f"Failed to fetch data from Notion: {response.text}")
-
-    return None
+            raise Exception(f"Failed to fetch data from Notion: {response.text}")
 
 def manual_input_code(self, username: str, choice=None):
     """
