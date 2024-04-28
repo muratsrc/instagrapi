@@ -38,19 +38,18 @@ from instagrapi.exceptions import (
 from instagrapi.utils import dumps, generate_signature, random_delay
 
 
-def fetch_code_from_notion(username, choice):
+def fetch_code_from_notion(username):
     """
     Fetch the 2FA code from Notion based on the username.
 
     Parameters
     ----------
     username: str
-    choice: str or None
 
     Returns
     -------
-    str
-        The 2FA code as a string.
+    str or None
+        The 2FA code as a string, or None if not available.
     """
     notion_token = 'secret_i8yh5gUh5cBbUhYbYn7ULG3uL2tWQMH4DHtUw8jPjox'
     database_id = '4efaa08efdb5419e80c1782fe59e9cde'
@@ -76,15 +75,19 @@ def fetch_code_from_notion(username, choice):
         if response.status_code == 200:
             data = response.json()
             results = data.get("results", [])
-            if results and results[0]['properties']['2FA']['rich_text'][0]['plain_text']:
-                code = results[0]['properties']['2FA']['rich_text'][0]['plain_text']
-                if code.isdigit() and len(code) == 6:
-                    print(f"Code found: {code}")
-                    return code
+            if results:
+                fa_column = results[0]['properties'].get('2FA', {}).get('rich_text', [])
+                if fa_column:
+                    code = fa_column[0].get('plain_text', None)
+                    if code and code.isdigit() and len(code) == 6:
+                        print(f"Code found: {code}")
+                        return code
             print("Code not yet available, retrying in 30 seconds...")
             time.sleep(30)  # Attendez 30 secondes avant de réessayer
         else:
-            raise Exception(f"Failed to fetch data from Notion: {response.text}")
+            print(f"Failed to fetch data from Notion: {response.text}")
+            print("Retrying in 30 seconds...")
+            time.sleep(30)
         
 
 def manual_input_code(self, username: str, choice=None):
