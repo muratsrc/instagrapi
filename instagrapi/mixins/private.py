@@ -487,6 +487,7 @@ class PrivateRequestMixin:
                     # returned when user not found
                     raise UserNotFound(e, response=e.response, **last_json)
                 elif "The username you entered" in message:
+                    print(message)
                     # The username you entered doesn't appear to belong to an account.
                     # Please check your username and try again.
                     last_json["message"] = (
