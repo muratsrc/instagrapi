@@ -486,8 +486,7 @@ class PrivateRequestMixin:
                 elif "unable to fetch followers" in message:
                     # returned when user not found
                     raise UserNotFound(e, response=e.response, **last_json)
-                elif "The username you entered" in message:
-                    print(message)
+                elif "ip" in message.lower() and "block" in message.lower():
                     # The username you entered doesn't appear to belong to an account.
                     # Please check your username and try again.
                     last_json["message"] = (
@@ -495,6 +494,11 @@ class PrivateRequestMixin:
                         "use a quality proxy provider (not free, not shared)"
                     )
                     raise ProxyAddressIsBlocked(**last_json)
+                elif "The username you entered" in message:
+                    # The username you entered doesn't appear to belong to an account.
+                    # Please check your username and try again.
+                    raise UserNotFound(e, response=e.response, **last_json)
+                
                 elif error_type or message:
                     raise UnknownError(**last_json)
                 # TODO: Handle last_json with {'message': 'counter get error', 'status': 'fail'}
