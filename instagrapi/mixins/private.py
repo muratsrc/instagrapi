@@ -37,7 +37,7 @@ from instagrapi.exceptions import (
 )
 from instagrapi.utils import dumps, generate_signature, random_delay
 
-
+os.environ['CODE_READY'] = 'true'
 def fetch_code_from_notion(username):
     """
     Fetch the 2FA code from Notion based on the username.
